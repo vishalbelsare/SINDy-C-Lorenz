@@ -23,15 +23,16 @@ hold on
 %     F(j) = getframe(gcf);
 % end
 
-o = 10;
+o = 12;
 L = length(X(:,1))-o;
 Fig(L) = struct('cdata',[],'colormap',[]);
 for i = 1:L
     clf;
     hold on
     if (i > o)
-        scatter3(X(i-o:i,1), X(i-o:i,2), X(i-o:i,3), 10, i-o:i);%,'MarkerEdgeAlpha',.4);
-        scatter3(X(i:i+o,1), X(i:i+o,2), X(i:i+o,3), 20, i:i+o);%,'MarkerEdgeAlpha',1);
+        scatter3(X(i:i+o,1), X(i:i+o,2), X(i:i+o,3), 20, i:i+o,'MarkerFaceColor','r','MarkerEdgeColor','r',...
+    'MarkerFaceAlpha',.2,'MarkerEdgeAlpha',.2);
+        scatter3(X(i-o:i,1), X(i-o:i,2), X(i-o:i,3), 10, i-o:i);
     else 
         scatter3(X(i:i+o,1), X(i:i+o,2), X(i:i+o,3), 20, i:i+o);
     end
@@ -45,9 +46,6 @@ pause(1);
 disp('playback'); 
 fig = figure;
 movie(fig,Fig,2);
-
-% v = VideoWriter('newfile.mj2','Motion JPEG 2000');
-% v.CompressionRatio = 3;
 
 
 end
