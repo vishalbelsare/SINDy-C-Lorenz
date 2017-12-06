@@ -1,6 +1,6 @@
 function plotLorenzMoving(X, ax)
 
-figure()
+figure() 
 % clf
 colormap(jet);
 

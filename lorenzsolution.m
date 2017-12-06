@@ -6,7 +6,7 @@ clear
 sigma=10;
 beta=8/3;
 rho=28;
-tmax = 80;
+tmax = 40;
 %
 f = @(t,a) [-sigma*a(1) + sigma*a(2); rho*a(1) - a(2) - a(1)*a(3); -beta*a(3) + a(1)*a(2)];
 %'f' is the set of differential equations and 'a' is an array containing values of x,y, and z variables.
@@ -17,10 +17,11 @@ f = @(t,a) [-sigma*a(1) + sigma*a(2); rho*a(1) - a(2) - a(1)*a(3); -beta*a(3) + 
 % disp(X(1,:));
 close all
 
-disp(size(X));
+% disp(size(X));
 
-plotLorenzSolution(X, t);
+% ax = plotLorenzSolution(X, t);
 
+% plotLorenzMoving(X, ax);
 
 
 % build time derivatives based on Lorenz equations
@@ -57,25 +58,25 @@ for i = 1:20
 end
 
 % need to sum column vectors & return in column vector
-for i = 1:size(t,1)
-  Theta(i,:) = libT(i,X(i,:));
-end
-disp(size(Theta));
+% for i = 1:size(t,1)
+%   Theta(i,:) = libT(i,X(i,:));
+% end
 
-a = [1,1,1];
-t = 2;
-disp(size(libT(t,a)'));
-disp(size(Theta * Xi));
-F = @(t,a) Theta * Xi;
 
-% disp(Xi);
 
-for i = 1:length(Theta(2,:))
-%     fS(:,i) = F(
-[t,X_S] = ode45(fS,[0 tmax],[1 1 1]); % 'ode45' uses adaptive Runge-Kutta method of 4th and 5th order to solve differential equations
+% function F = Fk(t, i, a) 
+% FK = @(i,a) NewTheta = libT(i,a(:));
 
-plotLorenzSolution(X_S, t);
+Fk = @(i,a) Xi' * libT(i,a)';
 
+
+[t,Sol] = ode45(@(t,Sol) Fk(t,Sol), t,[1 1 1]);
+
+disp(size(Sol));
+
+ax = plotLorenzSolution(Sol, t);
+plotLorenzMoving(Sol, ax);
+% 
 
 
 
