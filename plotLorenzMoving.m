@@ -6,13 +6,13 @@ colormap(jet);
 
 hold on
 
-% for i = 1:length(X(:,1))
-%     scatter3(X(1:i,1), X(1:i,2), X(1:i,3), 20, 1:i);
-%     axis([ax.XLim(1) ax.XLim(2) ax.YLim(1) ax.YLim(2) ax.ZLim(1) ax.ZLim(2)]);
-%     view(-130,10);
-%     grid off
-%     pause(.000001);
-% end
+for i = 1:length(X(:,1))
+    scatter3(X(1:i,1), X(1:i,2), X(1:i,3), 20, 1:i);
+    axis([ax.XLim(1) ax.XLim(2) ax.YLim(1) ax.YLim(2) ax.ZLim(1) ax.ZLim(2)]);
+    view(-130,10);
+    grid off
+    pause(.000001);
+end
 
 % loops = 40;
 % F(loops) = struct('cdata',[],'colormap',[]);
@@ -22,32 +22,32 @@ hold on
 % %     drawnow
 %     F(j) = getframe(gcf);
 % end
-
-o = 10;
-L = length(X(:,1))-o;
-Fig(L) = struct('cdata',[],'colormap',[]);
-for i = 1:L
-    clf;
-    hold on
-    if (i > o)
-        scatter3(X(i-o:i,1), X(i-o:i,2), X(i-o:i,3), 10, i-o:i);%,'MarkerEdgeAlpha',.4);
-        scatter3(X(i:i+o,1), X(i:i+o,2), X(i:i+o,3), 20, i:i+o);%,'MarkerEdgeAlpha',1);
-    else 
-        scatter3(X(i:i+o,1), X(i:i+o,2), X(i:i+o,3), 20, i:i+o);
-    end
-    axis([ax.XLim(1) ax.XLim(2) ax.YLim(1) ax.YLim(2) ax.ZLim(1) ax.ZLim(2)]);
-    view(-130,10);
-    grid off
-    Fig(i) = getframe(gcf);
-    pause(.000001);
-end
-pause(1);
-disp('playback'); 
-fig = figure;
-movie(fig,Fig,2);
-
-% v = VideoWriter('newfile.mj2','Motion JPEG 2000');
-% v.CompressionRatio = 3;
-
+% 
+% o = 10;
+% L = length(X(:,1))-o;
+% Fig(L) = struct('cdata',[],'colormap',[]);
+% for i = 1:L
+%     clf;
+%     hold on
+%     if (i > o)
+%         scatter3(X(i-o:i,1), X(i-o:i,2), X(i-o:i,3), 10, i-o:i);%,'MarkerEdgeAlpha',.4);
+%         scatter3(X(i:i+o,1), X(i:i+o,2), X(i:i+o,3), 20, i:i+o);%,'MarkerEdgeAlpha',1);
+%     else 
+%         scatter3(X(i:i+o,1), X(i:i+o,2), X(i:i+o,3), 20, i:i+o);
+%     end
+%     axis([ax.XLim(1) ax.XLim(2) ax.YLim(1) ax.YLim(2) ax.ZLim(1) ax.ZLim(2)]);
+%     view(-130,10);
+%     grid off
+%     Fig(i) = getframe(gcf);
+%     pause(.000001);
+% end
+% pause(1);
+% disp('playback'); 
+% fig = figure;
+% movie(fig,Fig,2);
+% 
+% % v = VideoWriter('newfile.mj2','Motion JPEG 2000');
+% % v.CompressionRatio = 3;
+% 
 
 end
