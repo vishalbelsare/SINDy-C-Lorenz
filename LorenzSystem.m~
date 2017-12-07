@@ -1,6 +1,6 @@
 clear
 
-%% Set up and solve Lorenz system to get state X and dX
+% Set up and solve Lorenz system 
 
 sigma=10;
 beta=8/3;
@@ -24,7 +24,7 @@ end
 
 % add noise to the derivative data
 eta = 0.5;      % noise magnitude
-dX = dX + eta * randn(size(dX));
+dX = dX + eta * randn(size(dx));
 
 
 %% SINDy Algorithm:
@@ -36,20 +36,34 @@ lib = @(t,a) [1; a(1); a(2); a(3); a(1)^2; a(2)^2; a(3)^2; a(1)*a(2); a(1)*a(3);
         sin(a(2)); cos(a(2)); sin(a(3)); cos(a(3))]';
 
 % input data into library
-for i = 1:size(t,1)
-  Theta(i,:) = lib(i,X(i,:));
+
+
+% compute sparse regression on dX = Theta * Xi
+% regression technique used: sequential least squares
+% code taken directly from Supporting Info for SINDy Paper
+Xi = Theta \ dX;
+
+lambda = 0.1;
+for i = 1:20
+  smallinds = (abs(Xi) < lambda);
+  Xi(smallinds) = 0;    % set negligible terms to 0
+  for ind = 1:size(X,2)   % perform regression on each vector independently
+    biginds = ~smallinds(:,ind);
+    Xi(biginds,ind) = Theta(:,biginds) \ dX(:,ind);
+  end
 end
-
-Xi = SINDy(Theta, dX);
-
 % now have solution Xi that describes which nonlinear terms are active in
 % the dynamics of the input system
 
-%% Recontruct data with Xi to compare with initial solution
+%% Recontruct data with Xi 
 
-Fk = @(i,a) Xi' * lib(i,a)';
 
-[t,Sol] = ode45(@(t,Sol) Fk(t,Sol),t,[1 1 1]);
+Fk = @(i,a) Xi' * libT(i,a)';
+
+
+[t,Sol] = ode45(@(t,Sol) Fk(t,Sol), t,[1 1 1]);
+
+disp(size(Sol));
 
 ax = plotLorenzSolution(Sol, t);
 plotLorenzMoving(Sol, ax);
