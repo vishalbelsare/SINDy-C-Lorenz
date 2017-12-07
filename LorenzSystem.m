@@ -19,12 +19,12 @@ plotLorenzSolution(X, t);
 % use differential equations to obtain derivatives of state X for all t in
 % the sample
 for i = 1:size(t,1)
-  dX(i,:) = f(t(i), X(i,:));
+  dXdt(i,:) = f(t(i), X(i,:));
 end
 
 % add noise to the derivative data
 eta = 0.5;      % noise magnitude
-dX = dX + eta * randn(size(dX));
+dXdt = dXdt + eta * randn(size(dXdt));
 
 
 %% SINDy Algorithm:
@@ -40,10 +40,11 @@ for i = 1:size(t,1)
   Theta(i,:) = lib(i,X(i,:));
 end
 
-Xi = SINDy(Theta, dX);
+Xi = SINDy(Theta, dXdt);
 
 % now have solution Xi that describes which nonlinear terms are active in
 % the dynamics of the input system
+
 
 %% Recontruct data with Xi to compare with initial solution
 

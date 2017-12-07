@@ -28,6 +28,7 @@ sigma=10;
 beta=8/3;
 rho=28;
 tmax = 20;
+t = linspace(0,tmax,2000);
 
 % Lorenz equations
 d = @(t) randn; % white noise
@@ -38,7 +39,7 @@ f = @(t,a) [-sigma*a(1) + sigma*a(2) + g(u(t, a)); rho*a(1) - a(2) - a(1)*a(3); 
 % g = @(u) u ^ 3;
 
 % use ode45 (RK4/RK5) to solve differential equations for state X
-[t,X] = ode45(f,[0 tmax],[1 1 1]); 
+[t,X] = ode45(f,t,[1 1 1]); 
 
 close all
 % plotLorenzSolution(X, t);
@@ -46,7 +47,7 @@ close all
 % use differential equations to obtain derivatives of state X for all t in
 % the sample
 for i = 1:size(t,1)
-  dX(i,:) = f(t(i), X(i,:));
+  dXdt(i,:) = f(t(i), X(i,:));
 end
 % matrix of control history
 for i = 1:size(t,1)
@@ -58,6 +59,7 @@ end
 % eta = 0.5;      % noise magnitude
 % dX = dX + eta * randn(size(dx));
 
+plotLorenzSolution(X, t);
 
 %% SINDy Algorithm to obtain Y(X):
 
@@ -76,6 +78,7 @@ end
 Xiu = SINDy(Theta, Y); 
 
 
+
 % now have solution Xi that describes which nonlinear terms are active in
 % the dynamics of the input system
 
@@ -84,7 +87,7 @@ Xiu = SINDy(Theta, Y);
 % redefine control
 u = @(t) [50 * sin(10 * t); 0; 0];
 
-[t,X] = ode45(f,[0 tmax],[1 1 1]); 
+[t,X] = ode45(f,t,[1 1 1]); 
 
 for i = 1:size(t,1)
   Theta(i,:) = lib2(i,X(i,:),[0,0,0]);
@@ -92,10 +95,12 @@ end
 
 YY = Theta * Xiu;
 
+Z = YY - Y;
+
 for i = 1:size(t,1)
-  dX(i,:) = f(t(i), X(i,:));
+  dXdt(i,:) = f(t(i), X(i,:));
 end
-%% SINDYc algorithm to solve for Xi st dX = Theta(X, Theta(x)*Xiu) * Xi
+%% SINDYc algorithm to solve for Xi s.t. dX = Theta(X, Theta(x)*Xiu) * Xi
 
     
 
@@ -103,20 +108,18 @@ for i = 1:size(t,1)
   ThetaXY(i,:) = lib2(i,X(i,:),YY(i,:));
 end
 
-Xi = SINDy(ThetaXY, dX);
+Xi = SINDy(ThetaXY, dXdt);
 
 
-return
 %% Recontruct data with Xi to compare with initial solution
 
-dX2 = ThetaXY * Xi;
 
-yx = @(i,a)  
-Fk = @(i,a) Xi' * lib2(i,a,yx(i,a))';
+% yx = @(i,a)   
+Fk = @(i,a) Xi' * lib2(i,a,interp1(t,YY,i))';
 
 
 [t,Sol] = ode45(@(t,Sol) Fk(t,Sol),t,[1 1 1]);
 
 ax = plotLorenzSolution(Sol, t);
-plotLorenzMoving(Sol, ax);
+% plotLorenzMoving(Sol, ax);
 % 
