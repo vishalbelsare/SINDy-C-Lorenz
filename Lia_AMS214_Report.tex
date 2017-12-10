@@ -37,21 +37,24 @@
 \section*{Abstract}
 
 \section*{Introduction}
-System identification techniquesfor recovering a system's governing equations from data collected from the system are useful for a wide range of applications in various fields. The system-identification algorithm proposed in [paper] involves sparse identification of nonlinear dynamical systems (SINDy). As stated in the title, the algorithm relies on the assumption that dynamics of the system depend on only a few linear and nonlinear terms. The algorithm has been 
+
+System identification techniques that use measured data to recover a system's governing equations are useful for a wide range of applications. The system-identification algorithm proposed in [paper] involves sparse identifications of nonlinear dynamical systems (SINDy). The algorithm relies on the assumption that dynamics of the system depend on only a few linear and nonlinear terms which will guarantee the sparsity of the solution. 
 
 
 \section*{SINDY Algorithm}
-The algorithm is effective under the assumption that the physical systems that are to be studied with SINDy have dynamics that are determined but only a few terms and are thus sparse in a high-dimensional nonlinear function space. The algorithm applies to systems of the form 
+The algorithm is effective under the assumption that the systems studied with SINDy have dynamics that are depend by only a few terms and are thus sparse in a high-dimensional, nonlinear function space. 
+
+We consider systems of the form 
 \begin{equation}
 \frac{d}{dt}\bm{x}(t) = \bm{f}(\bm{x}(t))
 \end{equation}
-where $\bm{x}(t) \in \mathbb{R}^n$ is the state of the system at time $t$ and $\bm{f}$ consists of the governing equations of the system. Since $\bm{f}$ is sparse in the nonlinear function space, the solution to the system can be obtain with convex methods/regression ?
+where $\bm{x}(t) \in \mathbb{R}^n$ is the state of the system at time $t$ and $\bm{f}$ consists of the governing equations of the system. 
 
-To compute the active nonlinear terms in the dynamics, the system 
+To compute the active nonlinear terms in the dynamics, we construct the system 
 \begin{equation} \label{eqn:main}
 	\bm{\dot{X}} = \bm{\Theta}(\bm{X})\bm{\Xi}
 \end{equation}
-where $\bm{X}$ and $\bm{\dot{X}}$ are data matrices containing the samples of the state and it's derivative at times $t_1, t_2, \cdots, t_m$ arranged as follows
+where $\bm{X}$ and $\bm{\dot{X}}$ are data matrices containing the samples of the state and its derivative at times $t_1, t_2, \cdots, t_m$ arranged as follows
 \begin{equation*}
 	\bm{X} = \begin{bmatrix} 
 				\bm{x}^T(t_1) \\ \bm{x}^T(t_2) \\ \vdots \\ \bm{x}^T(t_m)
@@ -59,8 +62,8 @@ where $\bm{X}$ and $\bm{\dot{X}}$ are data matrices containing the samples of th
 		   = \begin{bmatrix}
 		   		x_1(t_1) & x_2(t_1) & \cdots & x_n(t_1) \\
 		   		x_1(t_2) & x_2(t_2) & \cdots & x_n(t_2) \\
-		   		\vdots   & \vdots   & \ddots & \vdots  \\
-		   		x_1(t_m) & x_2(t_m) & \cdots & x_n(t_m)
+		   		\vdots   & \vdots   & \ddots & \vdots   \\
+		   		x_1(t_m) & x_2(t_m) & \cdots & x_n(t_m) 
 	   		\end{bmatrix}
 \end{equation*}
 
@@ -75,7 +78,7 @@ where $\bm{X}$ and $\bm{\dot{X}}$ are data matrices containing the samples of th
 		   		\dot{x}_1(t_m) & \dot{x}_2(t_m) & \cdots & \dot{x}_n(t_m)
 	   		\end{bmatrix}.
 \end{equation*}
-The state data are input to the library of candidate functions, $\bm{\Theta}(\bm{X})$, which consist of constant, polynomial, and trigonometric terms that are chosen based on hypotheses about the system dynamics. [[More about choosing functions]]. The terms of the candidate functions are arranged in a matrix 
+The state data are input to the library of candidate functions, $\bm{\Theta}(\bm{X})$, which consist of constant, polynomial, and trigonometric terms that are chosen based on hypotheses (based on symmetry, physics, etc.) about the system dynamics. [[More about choosing functions]]. The candidate functions are arranged in a matrix 
 \begin{equation}
 	\bm{\Theta}(\bm{X}) = 
 	\begin{bmatrix}
@@ -84,7 +87,7 @@ The state data are input to the library of candidate functions, $\bm{\Theta}(\bm
 		\mid & \mid 	& \mid 	 		&        & \mid	  		& \mid  	   &
 	\end{bmatrix}
 \end{equation}
-where polynomials of degree $i$ are denoted $\bm{X}^{P_i}$. For example, $\bm{X}^{P_i}$ contains quadratic nonlinearities in the state $\bm{x}$ as follows
+where polynomial cross-terms of degree $i$ are denoted $\bm{X}^{P_i}$. For example, $\bm{X}^{P_i}$ contains quadratic nonlinearities in the state $\bm{x}$,
 \begin{equation*}
 	\bm{X}^{P_2} = 
 		\begin{bmatrix}
@@ -94,10 +97,14 @@ where polynomials of degree $i$ are denoted $\bm{X}^{P_i}$. For example, $\bm{X}
 			x_1^2(t_m)	&	x_1(t_m)x_2(t_m) & \cdots & x_2^2(t_m) & \cdots & x_n^2(t_m) \\
 		\end{bmatrix}.
 \end{equation*}
-The final term in \refe{eqn:main}, $\bm{\Xi} = [\bm{\xi}_1 \bm{\xi}_2 \cdots \bm{\xi}_n]$ contains sparse vectors of coefficients that determine the influence the active nonlinear terms. Solving for these coefficients requires a distinct optimization of each vector,
-\begin{equation}
+The final term in \refe{eqn:main}, $\bm{\Xi} = [\bm{\xi}_1 \bm{\xi}_2 \cdots \bm{\xi}_n]$ is the desired sparse matrix of coefficients that determine which of the candidate functions in $\bm{\Theta}(\bm{X})$ are active in the system. Solving for these coefficients requires a distinct optimization of each vector, 
+\begin{equation} \label{eqn:vector}
 	\bm{\dot{x}} = \bm{f}(\bm{x}) = \bm{\Xi}^T(\bm{\Theta}(\bm{x}^T))^T.
 \end{equation}
+
+Algorithms to perform the desired sparse regression of \refe{eqn:vector} include LASSO, which uses the $L_1$-norm to ensure sparsity, and the sequential least squares method. In this study, sequential least squares was the method of choice.
+
+
 
 % \section*{Vortex Shedding}
 

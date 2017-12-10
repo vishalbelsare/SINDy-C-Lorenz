@@ -28,30 +28,34 @@ sigma=10;
 beta=8/3;
 rho=28;
 tmax = 20;
-t = linspace(0,tmax,2000);
+m = 2000;
+tspan = linspace(0,tmax,m);
+% global U
+% global tu
 
 % Lorenz equations
 d = @(t) randn; % white noise
-u = @(t, a) [26 - a(1) + d(t); 0; 0];
-g = @(u) u(1);
+u = @(t, a) [26 - a(1) + 5*sin(t) + d(t); 0; 0];
+g = @(U) U(1);
 f = @(t,a) [-sigma*a(1) + sigma*a(2) + g(u(t, a)); rho*a(1) - a(2) - a(1)*a(3); -beta*a(3) + a(1)*a(2)];
 % u = @(t) .5 + sin(40*t);
 % g = @(u) u ^ 3;
+% f = @(t,X) dynamics(t,X,d);
 
 % use ode45 (RK4/RK5) to solve differential equations for state X
-[t,X] = ode45(f,t,[1 1 1]); 
+[tspan,X] = ode45(f, tspan, [1 1 1]); 
 
 close all
 % plotLorenzSolution(X, t);
 
 % use differential equations to obtain derivatives of state X for all t in
 % the sample
-for i = 1:size(t,1)
-  dXdt(i,:) = f(t(i), X(i,:));
+for i = 1:m
+  dXdt(i,:) = f(tspan(i), X(i,:));
 end
 % matrix of control history
-for i = 1:size(t,1)
-  Y(i,:) = u(t(i), X(i,:));
+for i = 1:m
+  Y(i,:) = u(tspan(i), X(i,:));
 end
 
 
@@ -59,7 +63,7 @@ end
 % eta = 0.5;      % noise magnitude
 % dX = dX + eta * randn(size(dx));
 
-plotLorenzSolution(X, t);
+plotLorenzSolution(X, tspan);
 
 %% SINDy Algorithm to obtain Y(X):
 
@@ -71,7 +75,7 @@ lib = @(t,a) [1; a(1); a(2); a(3); a(1)^2; a(2)^2; a(3)^2; a(1)*a(2); a(1)*a(3);
     % need more sine terms?
 
 % input data into library
-for i = 1:size(t,1)
+for i = 1:m
   Theta(i,:) = lib2(i,X(i,:),[0, 0, 0]);
 end
 
@@ -82,44 +86,45 @@ Xiu = SINDy(Theta, Y);
 % now have solution Xi that describes which nonlinear terms are active in
 % the dynamics of the input system
 
-%% New system
-
-% redefine control
-u = @(t) [50 * sin(10 * t); 0; 0];
-
-[t,X] = ode45(f,t,[1 1 1]); 
-
-for i = 1:size(t,1)
-  Theta(i,:) = lib2(i,X(i,:),[0,0,0]);
-end
-
-YY = Theta * Xiu;
-
-Z = YY - Y;
-
-for i = 1:size(t,1)
-  dXdt(i,:) = f(t(i), X(i,:));
-end
 %% SINDYc algorithm to solve for Xi s.t. dX = Theta(X, Theta(x)*Xiu) * Xi
 
-    
+YY = Theta * Xiu;  % ok ?
 
-for i = 1:size(t,1)
+for i = 1:m
   ThetaXY(i,:) = lib2(i,X(i,:),YY(i,:));
 end
 
 Xi = SINDy(ThetaXY, dXdt);
 
 
-%% Recontruct data with Xi to compare with initial solution
+%% Recontruct data with Xi and new control to compare with initial solution
 
 
-% yx = @(i,a)   
-Fk = @(i,a) Xi' * lib2(i,a,interp1(t,YY,i))';
+% redefine control
+u = @(t) [50 * sin(10 * t); 0; 0];
+
+% [tspan,X] = ode45(f,tspan,[1 1 1]); 
+
+for i = 1:m
+  Ynew(i,:) = u(tspan(i));
+end
+% 
+% for i = 1:length(tspan)
+%   Theta(i,:) = lib2(i,X(i,:),Ynew);
+% end
+% 
+% Z = YY - Y;
+% 
+% for i = 1:length(tspan)
+%   dXdt(i,:) = f(tspan(i), X(i,:));
+% end
+% 
+
+Fk = @(t,a) Xi' * lib2(t,a,interp1(tspan,Ynew,t))';
 
 
-[t,Sol] = ode45(@(t,Sol) Fk(t,Sol),t,[1 1 1]);
+[tspan,Sol] = ode45(@(t,Sol) Fk(t,Sol),tspan,[1 1 1]);
 
-ax = plotLorenzSolution(Sol, t);
+ax = plotLorenzSolution(Sol, tspan);
 % plotLorenzMoving(Sol, ax);
 % 
