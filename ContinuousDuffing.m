@@ -19,7 +19,8 @@ f = @(t,a) [a(2); -(alpha*a(1) + beta*a(1)^3 + delta*a(2)) + u(t)];
 
 figure(1)
 clf
-plot(X(:,1), X(:,2));
+plot(X(:,1), X(:,2),'k');
+saveas(gcf,'CD_A1.png');
 
 % compute derivatives of the state X for all t in the sample
 % and measure the value of the forcing at each sample
@@ -62,7 +63,8 @@ Fk = @(i,a,b) Xi' * lib(i,a,b)';
 [t,Xs] = ode45(@(t,Xs) Fk(t,Xs,u(t)), t, [1 0]);
 figure(2)
 clf
-plot(Xs(:,1), Xs(:,2));
+plot(Xs(:,1), Xs(:,2),'k');
+saveas(gcf,'CD_S1.png');
 
 
 gamma = 10;
@@ -75,10 +77,12 @@ f = @(t,a) [a(2); -(alpha*a(1) + beta*a(1)^3 + delta*a(2)) + u(t)];
 
 figure(3)
 clf
-plot(Xs1(:,1), Xs1(:,2));
+plot(Xs1(:,1), Xs1(:,2),'k');
+saveas(gcf,'CD_A2.png');
 figure(4)
 clf
-plot(X1(:,1), X1(:,2));
+plot(X1(:,1), X1(:,2),'k');
+saveas(gcf,'CD_S2.png');
 
 % Error = SimulationError(X(:,2), Xs(:,2));
 

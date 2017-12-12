@@ -23,7 +23,7 @@ for i = 1:size(t,1)
 end
 
 % add noise to the derivative data
-eta = 0.5;      % noise magnitude
+eta = .2;      % noise magnitude
 dXdt = dXdt + eta * randn(size(dXdt));
 
 
@@ -53,5 +53,5 @@ Fk = @(i,a) Xi' * lib(i,a)';
 [t,Sol] = ode45(@(t,Sol) Fk(t,Sol),t,[1 1 1]);
 
 ax = plotLorenzSolution(Sol, t);
-plotLorenzMoving(Sol, ax);
+% plotLorenzMoving(Sol, ax);
 % 

@@ -1,30 +1,28 @@
+%% Discrete Duffing Equation with SINDy
+
+
 clear
-
-
+%% set up system, store actual solution
 alpha = 2.75;
 beta = 0.2;
 
+
 f = @(x) [x(2); -beta * x(1) + alpha * x(2) - x(2)^3];
+n = 2;      % dimension
+m = 20000;  % number of samples
 
-n = 2;
-m = 20000;
-
-X = zeros(m,n);
+X = zeros(m,n);     % pre-allocate
 
 X(1,:) = f([.9,.01]);
 for i = 1:m-1
     X(i+1,:) = f(X(i,:));
 end
 
-% disp(X(:,1));
 
-figure()
-clf
-scatter(X(:,1), X(:,2),1);
-
-
-
-
+% 
+% % add noise to the derivative data
+% eta = 0.5;      % noise magnitude
+% X = X + eta * randn(size(X));
 
 
 %% SINDy Algorithm:
@@ -39,10 +37,7 @@ for i = 1:m-1
   Theta(i,:) = lib(i,X(i,:));
 end
 
-Xi = SINDy(Theta, X(2:m,:));
-
-% now have solution Xi that describes which nonlinear terms are active in
-% the dynamics of the input system
+Xi = SINDy(Theta, X(2:m,:));        % coefficient matrix
 
 
 %% Recover data with Xi 
@@ -54,8 +49,23 @@ for i = 1:m-1
     Xs(i+1,:) = Y(i,Xs(i,:));
 end
 
-figure()
-clf
-scatter(Xs(:,1), Xs(:,2),2);
 
+%% plot actual solution
+fontsize = 20;
+figure(1)
+clf
+scatter(X(:,1), X(:,2),2,'k');
+xlabel('$x_k$','Interpreter','Latex','Fontsize',fontsize)
+ylabel('$y_k$','Interpreter','Latex','Fontsize',fontsize)
+
+%% plot SINDy solution
+figure(2)
+clf
+scatter(Xs(:,1), Xs(:,2),2,'k');
+xlabel('$x_k$','Interpreter','Latex','Fontsize',fontsize)
+ylabel('$y_k$','Interpreter','Latex','Fontsize',fontsize)
+
+
+
+%% compute error
 Error = SimulationError(X(:,2), Xs(:,2));
